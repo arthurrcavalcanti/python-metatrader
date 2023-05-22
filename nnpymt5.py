@@ -416,9 +416,9 @@ def createModel3(data):
     split_ratio = 0.8
     split_index = int(split_ratio * len(X_scaled))
 
-    X_train = X[:split_index]
+    X_train = X_scaled[:split_index]
     y_train = y[:split_index]
-    X_test = X[split_index:]
+    X_test = X_scaled[split_index:]
     y_test = y[split_index:]
     print("split data training x: ", len(X_train), " | y: ", len(y_train))
     # Define the sequence length
@@ -454,16 +454,17 @@ def createModel3(data):
     count = sum(1 for file_name in file_list if file_name.startswith('best_model')) + 1
 
     # Define the model checkpoint callback
-    checkpoint = ModelCheckpoint(filepath='./model/best_model'+str(count)+'.h5', monitor='val_loss', save_best_only=True)
+    modelPath = './model/best_model'+str(count)+'.h5'
+    checkpoint = ModelCheckpoint(filepath=modelPath, monitor='val_loss', save_best_only=True)
 
-    print("Training the model")
+    print("Training the model: " + modelPath)
     # Train the model with model checkpointing
     history = model.fit(X_train_sequences, y_train_sequences, epochs=10, batch_size=32,
                         validation_data=(X_test_sequences, y_test_sequences),
                         callbacks=[checkpoint])
 
     # Load the best model
-    best_model = tf.keras.models.load_model('./model/best_model.h5')
+    best_model = tf.keras.models.load_model(modelPath)
 
     # Evaluate the best model
     loss, accuracy = best_model.evaluate(X_test_sequences, y_test_sequences)
